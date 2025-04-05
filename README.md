@@ -26,9 +26,3 @@
 - JavaScript
 - CSS (inline styles)
 
-## 📷 Screenshot
-
-_Add a screenshot here if desired by uploading an image and referencing it like this:_
-
-```markdown
-![EC Buddy Image Generator Screenshot](screenshot.png)
