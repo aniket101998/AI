@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Image Generator</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            color: #fff;
+            background: linear-gradient(120deg, #388e3c, #2e7d32, #fbc02d, #0288d1); /* Multi-color Green and Other Colors Gradient */
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        input {
+            width: 60%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(120deg, #388e3c, #2e7d32, #fbc02d, #0288d1); /* Multi-color Gradient for Buttons */
+            color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            background: linear-gradient(120deg, #2e7d32, #388e3c, #fbc02d, #0288d1); /* Hover Gradient with Mix */
+            transform: scale(1.1);
+            box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Fullscreen Image */
+        .full-screen-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .full-screen-container img {
+            max-width: 90%;
+            max-height: 80%;
+            border: 5px solid white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .full-screen-container.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #closeButton, #downloadButton {
+            position: absolute;
+            top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        #closeButton {
+            right: 20px;
+            background-color: red;
+            color: white;
+        }
+      
+        #closeButton:hover {
+            background-color: darkred;
+        }
+
+        #downloadButton {
+            right: 100px;
+            background-color: #28a745;
+            color: white;
+        }
+
+        #downloadButton:hover {
+            background-color: #218838;
+        }
+
+        /* Gallery with Horizontal Scrolling */
+        .gallery {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 30px;
+            max-width: 90%;
+            padding-bottom: 10px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .gallery::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .gallery::-webkit-scrollbar-track {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery img {
+            width: 250px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideIn 0.5s forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating Shapes */
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .shape {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: floatAnimation 6s infinite ease-in-out;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes floatAnimation {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(50px);
+            }
+        }
+        
+        .shape:nth-child(1) {
+            top: 10%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            top: 60%;
+            left: 10%;
+            animation-delay: 1.5s;
+        }
+
+        .shape:nth-child(3) {
+            top: 30%;
+            left: 70%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(4) {
+            top: 80%;
+            left: 50%;
+            animation-delay: 4.5s;
+        }
+
+        /* Delete Button Style */
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+
+        /* Gallery Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-buttons button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+
+        /* Loading Animation */
+        .loader-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            border: 12px solid rgba(255, 255, 255, 0.3);
+            border-top: 12px solid #388e3c;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer Style */
+        footer {
+            position: fixed;
+            bottom: 10px;
+            font-size: 1rem;
+            text-align: center;
+            width: 100%;
+            color: white;
+            padding: 10px;
+        }
+
+        footer a {
+            color: #275e26;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    <h2>Welcome to EC Buddy</h2>
+    <p class="description">Enter your creative prompt and generate stunning AI-generated images in seconds. Let's bring your imagination to life!</p>
+    <input type="text" id="promptInput" placeholder="Type your image idea here">
+    <button onclick="generateImage()">Generate Image</button>
+
+    <!-- Loading Spinner -->
+    <div class="loader-container" id="loaderContainer" style="display: none;">
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <div class="full-screen-container" id="fullScreenContainer">
+        <img id="fullScreenImage" alt="Generated Image">
+        <button id="closeButton" onclick="closeFullScreen()">Close</button>
+        <button id="downloadButton" onclick="downloadImage()">Download</button>
+    </div>
+
+    <!-- Gallery with Horizontal Scrolling -->
+    <div class="gallery" id="gallery"></div>
+
+    <!-- Gallery Navigation Buttons -->
+    <div class="nav-buttons">
+        <button onclick="scrollGallery('left')">←</button>
+        <button onclick="scrollGallery('right')">→</button>
+    </div>
+
+    <footer>
+        Developed by <a href="https://github.com/aniket101998" target="_blank">Aniket Shegamwar</a>
+    </footer>
+
+    <script>
+        function loadGallery() {
+            const gallery = document.getElementById("gallery");
+            const images = JSON.parse(localStorage.getItem("generatedImages")) || [];
+            gallery.innerHTML = '';
+            images.forEach((imageUrl) => {
+                const imgElement = document.createElement("img");
+                imgElement.src = imageUrl;
+                imgElement.onclick = () => showImageInFullScreen(imageUrl);
+
+                // Create delete button
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "X";
+                deleteButton.className = "delete-btn";
+                deleteButton.onclick = (event) => {
+                    event.stopPropagation();
+                    deleteImage(imageUrl);
+                };
+
+                // Append delete button inside the image container
+                const imgContainer = document.createElement("div");
+                imgContainer.style.position = "relative";
+                imgContainer.appendChild(imgElement);
+                imgContainer.appendChild(deleteButton);
+                gallery.appendChild(imgContainer);
+            });
+        }
+
+        function generateImage() {
+            const prompt = document.getElementById("promptInput").value;
+            if (!prompt) {
+                alert("Please enter a prompt.");
+                return;
+            }
+
+            // Show the loader animation
+            document.getElementById("loaderContainer").style.display = "block";
+
+            // Reset Full Screen Container visibility in case it's still open
+            const fullScreenContainer = document.getElementById("fullScreenContainer");
+            fullScreenContainer.classList.remove('active');
+            
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`;
+
+            setTimeout(() => {
+                const fullScreenImage = document.getElementById("fullScreenImage");
+                fullScreenImage.src = imageUrl;
+
+                fullScreenImage.onload = () => {
+                    document.getElementById("loaderContainer").style.display = "none"; // Hide loader
+
+                    // Now show the image in full-screen
+                    fullScreenContainer.classList.add('active'); // Display full-screen container
+
+                    addToGallery(imageUrl);
+                };
+            }, 1500);  // Simulate a 1.5-second delay before showing the image
+        }
+
+        function addToGallery(imageUrl) {
+            const gallery = document.getElementById("gallery");
+            const images = JSON.parse(localStorage.getItem("generatedImages")) || [];
+
+            if (!images.includes(imageUrl)) {
+                images.unshift(imageUrl);
+                localStorage.setItem("generatedImages", JSON.stringify(images));
+                loadGallery();
+            }
+        }
+
+        function showImageInFullScreen(imageUrl) {
+            const fullScreenContainer = document.getElementById("fullScreenContainer");
+            const fullScreenImage = document.getElementById("fullScreenImage");
+
+            fullScreenImage.src = imageUrl;
+            fullScreenContainer.classList.add('active');
+        }
+
+        function closeFullScreen() {
+            const fullScreenContainer = document.getElementById("fullScreenContainer");
+            fullScreenContainer.classList.remove('active');
+        }
+
+        async function downloadImage() {
+            const fullScreenImage = document.getElementById("fullScreenImage");
+            const imageUrl = fullScreenImage.src;
+
+            if (!imageUrl) {
+                alert("No image to download.");
+                return;
+            }
+
+            try {
+                const response = await fetch(imageUrl);
+                if (!response.ok) throw new Error("Failed to fetch image.");
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "generated-image.jpg";
+                link.click();
+
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error("Error downloading the image:", error);
+                alert("Failed to download the image. Please try again.");
+            }
+        }
+
+        function deleteImage(imageUrl) {
+            let images = JSON.parse(localStorage.getItem("generatedImages")) || [];
+            images = images.filter(img => img !== imageUrl);
+            localStorage.setItem("generatedImages", JSON.stringify(images));
+            loadGallery();
+        }
+
+        window.onload = loadGallery;
+
+        function scrollGallery(direction) {
+            const gallery = document.getElementById("gallery");
+            const scrollAmount = 300;
+
+            if (direction === 'left') {
+                gallery.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                gallery.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
