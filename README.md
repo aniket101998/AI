@@ -12,12 +12,12 @@
 
 ## 📁 Files Included
 
-- `ChatBot.html`: Main file containing the image generator UI and logic
+- `index.html`: Main file containing the image generator UI and logic
 
 ## 🚀 Getting Started
 
 1. Clone this repository or download the ZIP.
-2. Open `ChatBot.html` in any modern web browser.
+2. Open `index.html` in any modern web browser.
 3. Start generating images instantly!
 
 ## 🛠️ Technologies Used
